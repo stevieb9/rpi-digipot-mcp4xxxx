@@ -3,7 +3,7 @@ package RPi::DigiPot::MCP4XXXX;
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '2.36.1';
 
 1;
 __END__
@@ -24,6 +24,10 @@ units have two.
 
 Both series will operate on either 3.3V or 5V, as the potentiometers do not send
 anything back to the Pi's GPIO.
+
+This software requires L<wiringPi|http://wiringpi.com> to be installed, as we
+use its L<SPI library|http://wiringpi.com/reference/spi-library> to communicate
+to the potentiometer over the SPI bus.
 
 =head1 SYNOPSIS
 

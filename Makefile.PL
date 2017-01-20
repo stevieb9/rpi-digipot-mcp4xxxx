@@ -10,6 +10,7 @@ WriteMakefile(
     ABSTRACT_FROM    => 'lib/RPi/DigiPot/MCP4XXXX.pm',
     LICENSE          => 'Perl_5',
     PL_FILES         => {},
+    LIBS             => ['-lwiringPi'],
     LICENSE          => 'perl_5',
     MIN_PERL_VERSION => 5.006,
     META_MERGE => {
