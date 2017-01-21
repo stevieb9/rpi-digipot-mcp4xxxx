@@ -33,6 +33,8 @@ WriteMakefile(
         'Test::More' => 0,
     },
     PREREQ_PM => {
+        'WiringPi::API'             => 2.36.3,
+        'RPi::WiringPi::Constant'   => 0.02,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'RPi-DigiPot-MCP4XXXX-*' },

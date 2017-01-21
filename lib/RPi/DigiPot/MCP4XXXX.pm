@@ -5,6 +5,59 @@ use strict;
 
 our $VERSION = '2.36.1';
 
+require XSLoader;
+XSLoader::load('RPi::MCP4XXXX', $VERSION);
+
+use RPi::WiringPi::Constant qw(:all);
+use WiringPi::API qw(:all);
+
+sub new {
+    if (@_ !=3 && @_ != 4){
+        die "new() requires \$cs and \$channel at minimum\n";
+    }
+
+    my ($class, $cs, $channel, $speed) = @_;
+
+    my $self = bless {}, $class;
+    $self->cs($cs)
+
+    wiringPiSPISetup(
+        $self->channel($channel),
+        $self->speed($speed)
+    );
+
+    return $self;
+}
+sub write {
+    my ($self) = @_;
+}
+sub channel {
+    my ($self, $chan) = @_;
+    $self->{channel} = $chan if defined $chan;
+    return $self->{channel};
+}
+sub cs {
+    my ($self, $pin) = @_;
+
+    if ($pin < 0 || $pin > 63){
+        die "cs() param must be a valid GPIO pin number\n";
+    }
+
+    $self->{cs} = $pin if defined $pin;
+
+    if (! defined $self->{cs}){
+        die "cs() can't continue, we're not configured with a pin\n";
+    }
+
+    return $self->{cs};
+}
+sub speed {
+    my ($self, $speed) = @_;
+    $self->{speed} = $speed if defined $speed;
+    $self->{speed} = 1000000 if ! defined $self->{speed}; # 1 MHz
+    return $self->{speed};
+}
+
 1;
 __END__
 

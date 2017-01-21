@@ -1,5 +1,5 @@
 Revision history for RPi-DigiPot-MCP4XXXX
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+2.36.1 UNREL
+        - WiringPi::API 2.36.3 and RPi::WiringPi::Constant 0.02 are prereqs
 
