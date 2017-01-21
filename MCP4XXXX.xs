@@ -12,16 +12,12 @@ int setup (int channel, int speed){
 
 int dpot_write (int channel, int data, int len){
 
-    uint8_t buf[2];
-    uint8_t cmd_bits, data_bits;
+    unsigned char buf[2];
 
-    unsigned char x;
-    x = (unsigned char *)data;
+    buf[0] = data & 0xFF;
+    buf[1] = data >> 8;
 
-    cmd_bits  = x & 0xFF;
-    data_bits = x >> 8;
-
-    printf("%d, %d, %d\n", data, cmd_bits, data_bits);
+    printf("%d, %d, %d\n", data, buf[0], buf[1]);
 }
 
 MODULE = RPi::DigiPot::MCP4XXXX  PACKAGE = RPi::DigiPot::MCP4XXXX
