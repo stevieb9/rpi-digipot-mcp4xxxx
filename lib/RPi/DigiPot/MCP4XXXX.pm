@@ -6,7 +6,7 @@ use strict;
 our $VERSION = '2.36.1';
 
 require XSLoader;
-XSLoader::load('RPi::MCP4XXXX', $VERSION);
+XSLoader::load('RPi::DigiPot::MCP4XXXX', $VERSION);
 
 use RPi::WiringPi::Constant qw(:all);
 use WiringPi::API qw(:all);
@@ -19,17 +19,20 @@ sub new {
     my ($class, $cs, $channel, $speed) = @_;
 
     my $self = bless {}, $class;
-    $self->cs($cs)
+    $self->cs($cs);
 
-    wiringPiSPISetup(
+
+#    setup(
         $self->channel($channel),
-        $self->speed($speed)
-    );
+        $self->speed($speed);
+#    );
 
     return $self;
 }
 sub write {
-    my ($self) = @_;
+    my ($self, $buf, $len) = @_;
+
+    dpot_write($self->channel, $buf, $len);
 }
 sub channel {
     my ($self, $chan) = @_;
