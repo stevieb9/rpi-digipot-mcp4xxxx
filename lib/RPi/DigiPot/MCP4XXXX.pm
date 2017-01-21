@@ -32,7 +32,7 @@ sub new {
 sub write {
     my ($self, $buf, $len) = @_;
 
-    dpot_write($self->channel, $buf, $len);
+    spiDataRW($self->channel, $buf, $len);
 }
 sub channel {
     my ($self, $chan) = @_;

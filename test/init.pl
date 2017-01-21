@@ -7,6 +7,6 @@ my $p = RPi::DigiPot::MCP4XXXX->new(4, 0);
 
 my $b1 = 0xFFFF;
 
-$p->write($b1, 1);
+$p->write($b1, 2);
 
 
