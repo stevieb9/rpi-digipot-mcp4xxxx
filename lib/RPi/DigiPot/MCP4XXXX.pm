@@ -163,6 +163,30 @@ to the potentiometer over the SPI bus.
 
 =head1 SYNOPSIS
 
+    # GPIO pin number connected to the potentiometer's
+    # CS (Chip Select) pin
+
+    my $cs = 18;  
+
+    # SPI bus channel
+
+    my $chan = 0;
+
+    my $dpot = RPi::DigiPot::MCP4XXXX->new($cs, $chan);
+
+    # potentiometer's output level (0-255).
+    # 127 == ~50% output
+
+    my $output = 127; 
+
+    # set the output level
+
+    $dpot->($output);
+
+    # shutdown (put to sleep) the potentiometer
+
+    $dpot->shutdown;
+
 =head1 METHODS
 
 =head2 new
@@ -222,7 +246,6 @@ Defaults to C<1>.
 
 NOTE: Only the MCP42xxx units have dual built-in potentiometers, so if you have
 an MCP41xxx unit, leave the default C<1> set for this parameter.
-
 
 =head1 TECHNICAL INFORMATION
 
