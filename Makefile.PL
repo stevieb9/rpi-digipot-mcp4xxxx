@@ -32,6 +32,9 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Test::More' => 0,
     },
+    TEST_REQUIRES => {
+        'Mock::Sub' => 1.07,
+    },
     PREREQ_PM => {
         'WiringPi::API'             => 2.36.3,
         'RPi::WiringPi::Constant'   => 0.02,

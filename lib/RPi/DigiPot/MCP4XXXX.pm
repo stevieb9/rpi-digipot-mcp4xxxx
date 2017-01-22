@@ -5,9 +5,6 @@ use strict;
 
 our $VERSION = '2.36.1';
 
-require XSLoader;
-XSLoader::load('RPi::DigiPot::MCP4XXXX', $VERSION);
-
 use RPi::WiringPi::Constant qw(:all);
 use WiringPi::API qw(:all);
 
@@ -19,30 +16,97 @@ sub new {
     my ($class, $cs, $channel, $speed) = @_;
 
     my $self = bless {}, $class;
-    $self->cs($cs);
+    $self->_cs($cs);
+    $self->{len} = 2;
 
+    wiringPiSetupGpio();
 
-#    setup(
-        $self->channel($channel),
-        $self->speed($speed);
-#    );
+    wiringPiSPISetup(
+        $self->_channel($channel),
+        $self->_speed($speed)
+    );
+
+    pinMode($self->_cs, OUTPUT);
+    digitalWrite($self->_cs, HIGH);
 
     return $self;
 }
-sub write {
-    my ($self, $buf, $len) = @_;
+sub set {
+    my ($self, $data, $pot) = @_;
 
-    spiDataRW($self->channel, $buf, $len);
+    if ($data < 0 || $data > 255){
+        die "set() requires 0-255 as the data param\n";
+    }
+
+    if (defined $pot){
+        if ($pot !=1 && $pot != 2 && $pot != 3){
+            die "set() \$pot param must be 1-3\n";
+        }
+    }
+   
+    my $cmd = 0x01;
+    $pot = 1 if ! defined $pot;
+
+    my $bytes = $self->_bytes($cmd, $pot, $data);
+
+    digitalWrite($self->_cs, LOW);
+    spiDataRW($self->_channel, $bytes, $self->_len);
+    digitalWrite($self->_cs, HIGH);
 }
-sub channel {
+sub shutdown {
+    my ($self, $pot) = @_;
+
+    if (defined $pot){
+        if ($pot !=1 && $pot != 2 && $pot != 3){
+            die "set() \$pot param must be 1-3\n";
+        }
+    }
+
+    my $data = 0;
+    my $cmd = 0x02; # shutdown bit
+    $pot = 1 if ! defined $pot;
+    
+    my $bytes = $self->_bytes($cmd, $pot, $data);
+
+    spiDataRW($self->_channel, $bytes, $self->_len);
+}
+sub _bytes {
+    
+    # calculates and returns an aref of control/data bytes
+
+    my ($self, $cmd, $chan, $data) = @_;
+
+    if (! defined $cmd || ! defined $chan || ! defined $data){
+        die "_bytes() requires \$cmd, \$chan (pot) and \$data params\n";
+    }
+
+    # shift the command byte left to get a nibble,
+    # then OR the channel nibble to it
+
+    my $cntl = ($cmd << 4) | $chan;
+   
+    return [$cntl, $data];
+}
+sub _channel {
+
+    # sets/gets the SPI channel
+
     my ($self, $chan) = @_;
     $self->{channel} = $chan if defined $chan;
+
+    if ($self->{channel} != 0 && $self->{channel} != 1){
+        die "\$channel param must be 0 or 1\n";
+    }
+
     return $self->{channel};
 }
-sub cs {
+sub _cs {
+
+    # sets/gets the chip select (CS) pin
+
     my ($self, $pin) = @_;
 
-    if ($pin < 0 || $pin > 63){
+    if (defined $pin && ($pin < 0 || $pin > 63)){
         die "cs() param must be a valid GPIO pin number\n";
     }
 
@@ -54,12 +118,24 @@ sub cs {
 
     return $self->{cs};
 }
-sub speed {
+sub _len {
+    
+    # returns the number of bytes to send to SPI
+    # this number is hardcoded in new()
+
+    my $self = shift;
+    return $self->{len};
+}
+sub _speed {
+
+    # sets/gets the SPI bus speed
+
     my ($self, $speed) = @_;
     $self->{speed} = $speed if defined $speed;
     $self->{speed} = 1000000 if ! defined $self->{speed}; # 1 MHz
     return $self->{speed};
 }
+sub _vim{};
 
 1;
 __END__
@@ -89,6 +165,65 @@ to the potentiometer over the SPI bus.
 
 =head1 METHODS
 
+=head2 new
+
+Instantiates a new L<RPi::DigiPot::MCP4XXXX> object, initiates communication
+with the SPI bus, and returns the object.
+
+Parameters:
+
+    $cs
+
+Mandatory: Integer, the GPIO pin number that connects to the potentiometer's
+Chip Select C<CS> pin. This is the pin we use to start and finish communication
+with the device over the SPI bus.
+
+    $channel
+
+Mandatory: Integer, represents the SPI bus channel that the potentiometer is
+connected to. C<0> for C</dev/spidev0.0> or C<1> for C</dev/spidev0.1>.
+
+    $speed
+
+Optional: Integer. The clock speed to communicate on the SPI bus at. Defaults
+to C<1000000> (ie: C<1MHz>).
+
+=head2 set
+
+This method allows you to set the variable output on the potentiometer(s).
+These units have 256 taps, allowing that many different output levels.
+
+Parameters:
+
+    $data
+
+Mandatory: Integer bewteen C<0> for 0% output and C<255> for 100% output.
+
+    $pot
+
+Optional: Integer, instructs the software which of the onboard potentiometers
+to set the output voltage on. C<1> for the first potentiometer, C<2> for the second, and C<3> to change the value on both. Defaults to C<1>.
+
+NOTE: Only the MCP42xxx units have dual built-in potentiometers, so if you have
+an MCP41xxx unit, leave the default C<1> set for this parameter.
+
+=head2 shutdown
+
+The onboard potentiometers allow you to shut them down when not in use,
+resulting in electricity usage. Using C<set()> will bring it out of sleep.
+
+Parameters:
+
+    $pot
+
+Optional: Integer, the built-in potentiometer to shut down. C<1> for the first
+potentiometer, C<2> for the second, and C<3> to change the value on both.
+Defaults to C<1>.
+
+NOTE: Only the MCP42xxx units have dual built-in potentiometers, so if you have
+an MCP41xxx unit, leave the default C<1> set for this parameter.
+
+
 =head1 TECHNICAL INFORMATION
 
 =head2 OVERVIEW
@@ -106,7 +241,7 @@ be thrown away, and nothing accomplished.
 Here's a diagram of the two bytes combined into a single bit string, showing the
 respective positions of the bits, and their function:
 
-         |<-Byte 1: Control->|<-Byte 2: Data->|
+         |<-Byte 1: Control->|<-Byte 0: Data->|
          |                   |                |
     fcn: | command | channel |      data      |
          |---------|---------|----------------|
@@ -116,12 +251,12 @@ respective positions of the bits, and their function:
            |                                 |
        MSB (bit 15)                      LSB (bit 0)
 
-=head1 CONTROL BYTE
+=head2 CONTROL BYTE
 
 The control byte is the most significant byte of the overall data being clocked
 into the potentiometer, and consists of a command nibble and a channel nibble.
 
-=head2 COMMAND
+=head3 COMMAND
 
 The command nibble is the most significant (leftmost) 4 bits of the control
 byte (bits 7-4 in the above diagram). The following diagram describes all
@@ -135,7 +270,7 @@ possible valid values.
     0010    put potentiometer into 'shutdown' mode
     0011    NOOP
 
-=head2 CHANNEL
+=head3 CHANNEL
 
 The channel nibble is the least significant 4 bits (rightmost) of the control
 byte (bits 3-0 in the above diagram). Valid values follow. Note that the
@@ -145,18 +280,18 @@ one valid value for them.
     Bits    Value
     -------------
 
-    0001    channel 0
-    0010    channel 1    (MCP42xxx only)
-    0011    both 0 and 1 (MCP42xxx only)
+    0001    potentiometer 0
+    0010    potentiometer 1 (MCP42xxx only)
+    0011    both 0 and 1    (MCP42xxx only)
 
-=head1 DATA BYTE
+=head2 DATA BYTE
 
 The data byte consists of the least significant 8 bits (rightmost) of the 16 bit
 combined data destined to the potentiometer. Both the MCP41xxx and MCP42xxx
 series potentiometers contain 256 taps, so the mapping of this byte is simple:
 valid values are C<0> (0% output) through C<255> (100% output).
 
-=head1 REGISTER BIT SEQUENCE
+=head2 REGISTER BIT SEQUENCE
 
 Here's an overview of the bits in order:
 
@@ -166,7 +301,7 @@ C<13-12>: Command bits
 
 C<11-10>: Unused
 
-C<9-8>: Channel select bits
+C<9-8>: Channel (built-in potentiomenter) select bits
 
 C<7-0>: Potentiometer tap setting data (0-255)
 
