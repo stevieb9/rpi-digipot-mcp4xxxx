@@ -1,5 +1,9 @@
 Revision history for RPi-DigiPot-MCP4XXXX
 
+2.36.2 UNREL
+        - fix missed method name in SYNOPSIS
+        - added link to the datasheet in POD
+
 2.36.1  2017-01-22
         - WiringPi::API 2.36.3 and RPi::WiringPi::Constant 0.02 are prereqs
         - added technical specifications

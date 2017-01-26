@@ -35,7 +35,7 @@ SYNOPSIS
 
         # set the output level
 
-        $dpot->($output);
+        $dpot->set($output);
 
         # shutdown (put to sleep) the potentiometer
 
@@ -103,6 +103,8 @@ METHODS
     you have an MCP41xxx unit, leave the default `1' set for this parameter.
 
 TECHNICAL INFORMATION
+    View the MCP4XXX datasheet.
+
   OVERVIEW
     The MCP4xxxx series digital potentiometers operate as follows:
 

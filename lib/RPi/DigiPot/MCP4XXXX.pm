@@ -181,7 +181,7 @@ to the potentiometer over the SPI bus.
 
     # set the output level
 
-    $dpot->($output);
+    $dpot->set($output);
 
     # shutdown (put to sleep) the potentiometer
 
@@ -248,6 +248,8 @@ NOTE: Only the MCP42xxx units have dual built-in potentiometers, so if you have
 an MCP41xxx unit, leave the default C<1> set for this parameter.
 
 =head1 TECHNICAL INFORMATION
+
+View the MCP4XXX L<datasheet|https://stevieb9.github.io/rpi-digipot-mcp4xxxx/datasheet/mcp4xxxx.pdf>.
 
 =head2 OVERVIEW
 
