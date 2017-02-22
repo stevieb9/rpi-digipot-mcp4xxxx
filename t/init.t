@@ -6,6 +6,11 @@ use Test::More;
 
 use RPi::DigiPot::MCP4XXXX;
 
+if (! $ENV{PI_BOARD}){
+    plan skip_all => "not a Pi board (env PI_BOARD)";
+    exit;
+}
+
 my $mod = 'RPi::DigiPot::MCP4XXXX';
 
 my $m = Mock::Sub->new;

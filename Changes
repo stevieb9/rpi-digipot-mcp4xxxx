@@ -1,8 +1,11 @@
 Revision history for RPi-DigiPot-MCP4XXXX
 
-2.36.2 UNREL
+2.36.2  2017-02-22
         - fix missed method name in SYNOPSIS
         - added link to the datasheet in POD
+        - quote multi-decimal prereq versions in Makefile.PL for older versions
+          of ExtUtils::MakeMaker (see #1)
+        - bypass t/init.t if PI_BOARD env var isn't true (closes #22)
 
 2.36.1  2017-01-22
         - WiringPi::API 2.36.3 and RPi::WiringPi::Constant 0.02 are prereqs
