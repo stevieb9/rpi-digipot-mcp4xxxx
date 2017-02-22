@@ -27,7 +27,7 @@ WriteMakefile(
         },
     },
     CONFIGURE_REQUIRES => {
-        'ExtUtils::MakeMaker' => 0,
+        'ExtUtils::MakeMaker' => 6.72,
     },
     BUILD_REQUIRES => {
         'Test::More' => 0,
