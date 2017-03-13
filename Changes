@@ -1,5 +1,8 @@
 Revision history for RPi-DigiPot-MCP4XXXX
 
+2.3603  2017-03-13
+        - changed version scheme from 2.36.x to 2.360x
+
 2.36.2  2017-02-22
         - fix missed method name in SYNOPSIS
         - added link to the datasheet in POD
