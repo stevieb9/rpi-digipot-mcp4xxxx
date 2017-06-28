@@ -1,5 +1,7 @@
 Revision history for RPi-DigiPot-MCP4XXXX
 
+2.3605 UNREL
+
 2.3604 2017-06-28
         - bump prereq ver of WiringPi::API to 2.3612
         - bump prereq ver of RPi::WiringPi::Constant to 1.00

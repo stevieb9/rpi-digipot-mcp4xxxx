@@ -3,7 +3,7 @@ package RPi::DigiPot::MCP4XXXX;
 use warnings;
 use strict;
 
-our $VERSION = '2.3604';
+our $VERSION = '2.3605';
 
 use RPi::WiringPi::Constant qw(:all);
 use WiringPi::API qw(:all);
