@@ -163,6 +163,11 @@ to the potentiometer over the SPI bus.
 
 =head1 SYNOPSIS
 
+    use warnings;
+    use strict;
+
+    use RPi::DigiPot::MCP4XXXX;
+
     # GPIO pin number connected to the potentiometer's
     # CS (Chip Select) pin
 
