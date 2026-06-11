@@ -1,6 +1,8 @@
 Revision history for RPi-DigiPot-MCP4XXXX
 
 2.3605 UNREL
+        - Migrated constants from removed RPi::WiringPi::Constant to
+          RPi::Const (incl. Makefile.PL prereq)
 
 2.3604 2017-06-28
         - bump prereq ver of WiringPi::API to 2.3612

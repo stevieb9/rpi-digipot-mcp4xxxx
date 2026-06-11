@@ -5,7 +5,7 @@ use strict;
 
 our $VERSION = '2.3605';
 
-use RPi::WiringPi::Constant qw(:all);
+use RPi::Const qw(:all);
 use WiringPi::API qw(:all);
 
 sub new {
