@@ -68,7 +68,9 @@ sub shutdown {
     
     my $bytes = $self->_bytes($cmd, $pot, $data);
 
+    digitalWrite($self->_cs, LOW);
     spiDataRW($self->_channel, $bytes, $self->_len);
+    digitalWrite($self->_cs, HIGH);
 }
 sub _bytes {
     
