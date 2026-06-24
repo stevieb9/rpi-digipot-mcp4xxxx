@@ -58,7 +58,7 @@ sub shutdown {
 
     if (defined $pot){
         if ($pot !=1 && $pot != 2 && $pot != 3){
-            die "set() \$pot param must be 1-3\n";
+            die "shutdown() \$pot param must be 1-3\n";
         }
     }
 
