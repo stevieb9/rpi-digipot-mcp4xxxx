@@ -10,6 +10,14 @@ Revision history for RPi-DigiPot-MCP4XXXX
       Mock::Sub - asserts the exact SPI control/data bytes (0x11/0x13 for set,
       0x21/0x22 for shutdown), the CS-LOW/SPI/CS-HIGH framing order, and the
       data/pot validation croaks, all without a Pi
+    - Added DEVICE SPECIFICS and ON THE WIRE sections to TECHNICAL
+      INFORMATION: chip capabilities, wiring map, and the 16-bit command frame
+      diagrammed with worked set()/shutdown() examples, verified against the
+      MCP41XXX/42XXX datasheet (DS11195C)
+    - Added a DATASHEET POD section pointing to the bundled
+      docs/datasheet/mcp4xxxx.pdf; repointed the TECHNICAL INFORMATION
+      datasheet link off its github.io URL
+    - Added t/set_shutdown.t to MANIFEST (was on disk but unlisted)
 
 3.1801    2026-06-12
     - Migrated constants from removed RPi::WiringPi::Constant to

@@ -16,3 +16,4 @@ t/init.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
+t/set_shutdown.t

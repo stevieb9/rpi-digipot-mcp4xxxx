@@ -256,7 +256,29 @@ an MCP41xxx unit, leave the default C<1> set for this parameter.
 
 =head1 TECHNICAL INFORMATION
 
-View the MCP4XXX L<datasheet|https://stevieb9.github.io/rpi-digipot-mcp4xxxx/datasheet/mcp4xxxx.pdf>.
+The MCP4XXX datasheet is bundled with this distribution; see L</DATASHEET>.
+
+=head2 DEVICE SPECIFICS
+
+    - 256-tap digital potentiometers, in 10k, 50k and 100k versions
+    - MCP41xxx: one potentiometer, 8 pins; MCP42xxx: two potentiometers,
+      14 pins, adding hardware SHDN/RS pins and an SO daisy-chain output
+    - Wiper powers up at mid-scale (0x80); the 42xxx RS pin resets it
+      there in hardware
+    - Software shutdown opens the A terminal and ties the wiper to B;
+      set() brings the pot back out of it
+    - Runs at 2.7-5.5V, under 1uA static; SPI modes 0,0 and 1,1, clocked
+      up to 10MHz (this module defaults to 1MHz, adjustable in new())
+    - +/-1 LSB max INL/DNL; wiper resistance 52 ohm typical on the 10k
+      parts; channel matching within 1% on the dual parts
+
+Wiring an MCP41xxx to the Pi: CS (pin 1) to the GPIO you hand L</new>,
+SCK (pin 2) to SCLK (GPIO 11), SI (pin 3) to MOSI (GPIO 10), VSS (pin 4)
+to ground, VDD (pin 8) to 3.3V; PA0/PW0/PB0 (pins 5-7) are the resistor
+terminals. The chips also run at 5V - fine for the pot itself since
+nothing here feeds back to the Pi, but if you daisy-chain a 42xxx at 5V,
+keep its SO pin (which drives at VDD levels) away from the Pi's 3.3V
+GPIO.
 
 =head2 OVERVIEW
 
@@ -336,6 +358,58 @@ C<11-10>: Unused
 C<9-8>: Channel (built-in potentiomenter) select bits
 
 C<7-0>: Potentiometer tap setting data (0-255)
+
+=head2 ON THE WIRE
+
+L</set> and L</shutdown> each produce exactly one 16-bit SPI frame: the
+GPIO CS pin drops, two bytes go out on C</dev/spidev0.0> or C<.1> (1MHz
+default, SPI mode 0,0), and CS rises again. The chip latches SI bits on
+rising SCK edges, and the command executes on that final CS rising edge.
+The clock count while CS is low must be a multiple of 16 or the command
+aborts - the "multiple" allowance (rather than "exactly") exists for
+daisy-chained 42xxx parts; this module always sends exactly 16. Note the
+Pi's hardware CE pin for the channel still toggles alongside the GPIO
+CS, so don't hang a second device off it.
+
+C<< $dpot->set(127) >> writes wiper tap 127 (about half scale) to
+potentiometer 0 - bytes C<0x11 0x7F>:
+
+    CS (GPIO)  \_________________________________/  <- command executes
+                    +-----------+-----------+
+    SI (MOSI)       | 0001 0001 | 0111 1111 |
+                    +-----------+-----------+
+                      Control     New wiper
+                      byte        data
+
+    0x11:
+    +----+----+----+----+----+----+----+----+
+    | X  | X  | C1 | C0 | X  | X  | P1 | P0 |
+    | 0  | 0  | 0  | 1  | 0  | 0  | 0  | 1  |
+    +----+----+----+----+----+----+----+----+
+
+    C1 C0 = 01    Write data
+    P1 P0 = 01    Potentiometer 0
+    Data  = 127   Tap 127 of 255
+
+C<< $dpot->shutdown(2) >> is the same frame with the shutdown command
+and potentiometer 1 selected - bytes C<0x22 0x00>; the data byte is a
+"don't care" for shutdowns, and this module sends zeros:
+
+    +----+----+----+----+----+----+----+----+
+    | X  | X  | C1 | C0 | X  | X  | P1 | P0 |
+    | 0  | 0  | 1  | 0  | 0  | 0  | 1  | 0  |
+    +----+----+----+----+----+----+----+----+
+
+Nothing useful comes back on MISO: the single-pot 41xxx has no data-out
+pin at all, and while the dual 42xxx has an C<SO> pin that echoes the
+shift register 16 clocks behind SI (all zeros first) for daisy-chaining,
+this module doesn't read it.
+
+=head2 DATASHEET
+
+The Microchip MCP41xxx/42xxx datasheet (DS11195C) is distributed with
+this software as F<docs/datasheet/mcp4xxxx.pdf>. It covers the command
+byte, the register layout, and the SPI framing this module implements.
 
 =head1 AUTHOR
 
