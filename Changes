@@ -18,6 +18,11 @@ Revision history for RPi-DigiPot-MCP4XXXX
       docs/datasheet/mcp4xxxx.pdf; repointed the TECHNICAL INFORMATION
       datasheet link off its github.io URL
     - Added t/set_shutdown.t to MANIFEST (was on disk but unlisted)
+    - Dropped the vestigial LIBS => ['-lwiringPi'] from Makefile.PL; this dist
+      is pure Perl (no XS), so nothing links wiringPi - the entry was inert
+      leftover from a former XS incarnation
+    - Removed a duplicate LICENSE key from Makefile.PL (it was set twice, to
+      'Perl_5' then 'perl_5'); kept the single canonical 'perl_5'
 
 3.1801    2026-06-12
     - Migrated constants from removed RPi::WiringPi::Constant to
